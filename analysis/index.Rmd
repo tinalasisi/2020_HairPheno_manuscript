@@ -1,0 +1,43 @@
+---
+title: "Home"
+author: "Tina Lasisi"
+date: "`r Sys.time()`"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: yes
+    number_sections: yes
+editor_options:
+  chunk_output_type: console
+---
+
+Welcome to the research website for the *Hair Phenotyping Methods Project*, run by [Tina Lasisi](https://www.tinalasisi.com/).
+
+This website contains background information on the project, as well as data pertaining to the development of these methods and protocols used for sample collection and preparation.
+
+# Background
+Scalp hair morphology is one of the most variable trait among human populations, yet there are no universal, or widely-used, methods for measuring variation in this morphology. As such, variation in hair morphology is generally described using subjective typologies. This project aims to develop high-throughput phenotyping methods for scalp hair morphology, specifically hair curvature and cross-sectional morphology. 
+
+# Methods
+This project has developed methods for hair sample preparation for imaging, and image analysis for both cross-sectional and curvature analysis of hair samples. 
+
+## Sample preparation
+We developed sample preparation methods for the [cross-sectional](https://www.protocols.io/view/sample-preparation-protocol-for-cross-sectional-mi-bbwcipaw.html) and for [curvature](https://www.protocols.io/view/sample-preparation-protocol-for-hair-fiber-curvatu-bbweipbe.html) analysis. These are available on [protocols.io](https://www.protocols.io), a protocol repository for research - we hope this will facilitate feedback and improvements to the methods. 
+
+## Image analysis - fibermorph Python package
+We created a Python package, [*fibermorph*](https://github.com/tinalasisi/fibermorph), which automates the image analysis process for images of both cross-sectional morphology and curvature in hair samples. The package is currently available on [GitHub](https://github.com/tinalasisi/fibermorph) and [PyPi](https://pypi.org/project/fibermorph/).
+
+# Results
+
+The *fibermorph* package features an inbuilt validation script that generates curvature and section data which is then analyzed by the main curvature and section functions. The script provides the images 1) generated and their respective parameters, and 2) the spreadsheets with results of the relative error calculated from a comparison of the *fibermorph* results with the known parameters. 
+
+## [Validation](validation.html)
+
+### Curvature
+To validate the curvature estimation of the *fibermorph* package, we calculate percent relative error of our algorithm's curvature estimation when applied to simulated arcs for a range of curvatures.
+
+### Section
+To validate the image analysis of cross-sectional geometry, we calculate the percent relative error of the fibermorph section algorithm on simulated ellipses for a range of sizes and shapes.
+
+## [Significance](significance.html)
+We measure curvature and cross-sectional morphology in a sample of African-European admixed individuals for whom we also have genotype information. This allows us to understand the biological significance of studying hair morphology quantitatively as opposed to qualitatively. 

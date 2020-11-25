@@ -1,0 +1,158 @@
+---
+title: "Consolidate Data"
+author: "Tina Lasisi"
+date: "`r Sys.time()`"
+output:
+  workflowr::wflow_html:
+    toc: yes
+    number_sections: yes
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+
+library(tidyverse)
+library(knitr)
+library(png)
+library(grid)
+library(here)
+library(ggstatsplot)
+library(lme4)
+library(ggtext)
+library(readxl)
+
+knitr::opts_chunk$set(echo = FALSE, include = TRUE, eval = TRUE, warning = FALSE, message = FALSE, fig.retina = 2)
+
+```
+
+
+
+```{r df_mergeAncestrySelfRepHair}
+
+# This CSV file contains the self-reported "group" the participants indicated and their self-reported hair texture if they answered that question on the Pre-Enrollment Questionnaire
+df_ADAPT_SelfRep <- dplyr::as_tibble(read_csv(here("data/Participant_Data/Source/CSV/selfRepAncestryHair_complete_ADAPT.csv")))%>% 
+  rename(
+    ID = 'Study ID',
+    age = Age,
+    SelfRepGroup = Group,
+    SelfRepComment = 'Clarify?',
+    participant_SelfRep = Participant,
+    father_SelfRep = Father,
+    mother_SelfRep = Mother,
+    fathers_mother_SelfRep = "Father's Mother",
+    fathers_father_SelfRep = "Father's Father",
+    mothers_mother_SelfRep = "Mother's Mother",
+    mothers_father_SelfRep = "Mother's Father",
+    hair_texture = "Hair Texture",
+    important_ancestry_features = "Important ancestry features"
+  ) %>% 
+  mutate(
+    ID = as.character(ID)
+  ) %>% 
+  select(-starts_with("X")) %>% 
+  select(ID, age, participant_SelfRep, hair_texture)
+  
+
+# This CSV file contains the ancestry estimates for the particpants in this sample
+df_AncestryK5 <- as_tibble(read_excel(here("data/Participant_Data/Source/Excel/ADAPT_1000G_Admixture_UnrelatedRelated_AllK.xlsx"), 
+    sheet = "K5")) %>% 
+  mutate(ID = as.character(IID),
+         Assignment = as.character(MyAssignment)) %>% 
+  select(-POP, -GROUP, -IID, -"MHC Ancestry", -MyAssignment) %>% 
+  select(ID, everything())
+
+df_ParticipantPlinkInfo <- as_tibble(read_excel(here("data/Participant_Data/Source/Excel/Participants_JW.xlsx"), col_types = c("numeric", "text", "text","text", "numeric", "numeric", "text","text", "text", "text", "text"))) %>% 
+  mutate(ID = as.character(ID),
+         age = as.numeric(Age),
+         sex = as.character(Sex)) %>% 
+  mutate(sex = factor(case_when(
+    sex == "1" ~ "male",
+    sex == "2" ~ "female"
+  ))) %>% 
+  select(ID, sex)
+
+# This CSV file contains the latest curvature measurement variable for the Afr-Eur admixed sample.
+df_AdmixedCurv <- dplyr::as_tibble(read_csv(here("data/fibermorph_output/admixed_real_hair/curvature/Nov02_1244_fibermorph_curvature/curvature_summary_data_Nov02_1334.csv"))) %>% 
+  select(-X1) %>% 
+  separate(col = ID, into = c(NA, "ID"), sep = "-|_")
+
+# This file contains m-index
+AfAd_mergedMar24 <- as_tibble(read_csv(here("data/archive/manuscript_data/AfAd_mergedMar24.csv"))) %>% 
+  select(ID, m_index) %>% 
+  mutate(ID = as.character(ID))
+
+  
+
+# This CSV file contains the latest cross-sectional data for the Afr-Eur admixed sample.
+df_AdmixedSection <- dplyr::as_tibble(read_csv(here("data/fibermorph_output/admixed_real_hair/section/Nov04_2022_fibermorph_section/summary_section_data.csv"))) %>% 
+  separate(col = ID, into = c("ID", "side", "hair"), sep = "_") %>% 
+  filter(min > 30 & max < 150)
+
+
+df_Admixed_Merged <- df_AdmixedCurv %>% 
+  left_join(df_AdmixedSection, by = "ID") %>% 
+  left_join(df_AncestryK5, by = "ID") %>% 
+  left_join(df_ADAPT_SelfRep, by = "ID") %>% 
+  left_join(df_ParticipantPlinkInfo, by = "ID") %>%
+  left_join(AfAd_mergedMar24, by = "ID") %>% 
+  select(ID, age, sex, participant_SelfRep, hair_texture, everything()) %>% 
+  mutate(
+    participant_SelfRep = as_factor(participant_SelfRep),
+    hair_texture = fct_relevel(as_factor(hair_texture), c("straight", "wavy", "curly", "very curly")),
+    HairTypeBin = 
+           factor(case_when(
+             curv_median<= (1/54) ~ 'Straight',
+             curv_median<= (1/28.5) ~ 'Wavy',
+             curv_median<= (1/6) ~ 'Curly',
+             TRUE ~ 'Very Curly'), levels = c("Straight", "Wavy", "Curly", "Very Curly")),
+         HairShapeBin = 
+           factor(case_when(
+             eccentricity <= 0.6 ~ 'round',
+             TRUE ~ 'elliptical'), levels = c("round", "elliptical"))
+  )
+
+
+
+write_csv(df_Admixed_Merged, path = here("data/df_Admixed_Merged.csv"))
+
+# Check how many missing values, there are zero for SelfReported Group and 
+# map(df_Admixed_Merged, ~sum(is.na(.)))
+
+
+```
+
+```{r df_sectionMerge}
+
+section_sim_fp <- list.files(path = here("data/raw/fibermorph_input/validation_simulated_hair/section"), recursive = TRUE, pattern = "summary*", full.names = TRUE)
+
+section_sim <- read_csv(section_sim_fp) %>% 
+  rename(ref_area = area,
+         ref_eccentricity = eccentricity)
+
+# find latest summary_section estimates
+section_est_fp <- list.files(path = here("data/raw/fibermorph_output/validation_sim_hair/section"), recursive = TRUE, pattern = "summary_section_data.csv", full.names = TRUE)
+
+section_est <- read_csv(section_est_fp)
+
+section_df <- left_join(section_sim, section_est)
+
+write_csv(section_df, file = here("data/df_section_validation.csv"))
+
+```
+
+```{r df_curvMerge}
+
+# For future use when importing from Python simulation
+curv_ref <- 
+
+curv_est_fp <- list.files(path = here("data/raw/fibermorph_output/validation_sim_hair/curvature"), recursive = TRUE, pattern = "curvature_summary_data*", full.names = TRUE)
+curv_est <- read_csv(curv_est_fp) %>% 
+  select(-X1)
+
+curv_df <- read_csv()
+
+```
+
+
+

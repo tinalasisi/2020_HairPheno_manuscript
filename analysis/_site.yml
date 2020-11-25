@@ -1,0 +1,25 @@
+name: "Hair Phenotyping Methods Project"
+output_dir: ../docs
+navbar:
+  title: "Hair Phenotyping Methods Project"
+  left:
+  - text: Home
+    href: index.html
+  - text: About
+    href: about.html
+  - text: License
+    href: license.html
+  - text: Validation
+    href: validation.html
+  - text: Significance
+    href: significance.html
+  right:
+  - icon: fa-github
+    text: Source code
+    href: https://github.com/tinalasisi/2020_HairPheno_manuscript
+output:
+  workflowr::wflow_html:
+    toc: yes
+    toc_float: yes
+    theme: cosmo
+    highlight: textmate

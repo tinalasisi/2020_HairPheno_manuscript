@@ -1,0 +1,15 @@
+---
+title: "License"
+output:
+  workflowr::wflow_html:
+    toc: false
+editor_options:
+  chunk_output_type: console
+---
+
+# Code
+The code is licensed under the [GPLv3](https://www.gnu.org/licenses/gpl-3.0.txt).
+
+# Site
+The results shared on this site (text, figures, data) are licensed under the [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/). This means you are free to include content from this site in your presentation, blog, or social media posts, as long as you cite us.
+

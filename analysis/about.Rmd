@@ -1,0 +1,26 @@
+---
+title: "About"
+output:
+  workflowr::wflow_html:
+    toc: true
+editor_options:
+  chunk_output_type: console
+---
+
+# Who
+- [Tina Lasisi](https://github.com/tinalasisi) is a PhD candidate in Biological Anthropology at [Penn State University](https://anth.la.psu.edu/). She has led this project which is part of her doctoral dissertation. She maintains this website.
+- [Arslan Zaidi](https://www.arslanzaidi.com/) is a postdoctoral fellow with Iain Mathieson at The Universirty of Pennsylvania. He worked with Tina Lasisi to generate the analyses. 
+- [Timothy H. Webster](https://timothyhwebster.com/) is an assistant professor at the University of Utah. He worked with Tina to create the fibermorph Python package.
+- [Kendall Routch](https://www.linkedin.com/in/kendall-routch/) was an undergraduate research assistant who helped develop the sample preparation methods for the cross-sectional analysis.
+- [Nicholas B. Stephens](https://scholar.google.de/citations?hl=en&user=Gj--B2oAAAAJ) is a postdoctoral scholar in the Department of Anthropology at Penn State Univeristy. He worked on the Python package with Tina.
+- [Nina G. Jablonski](https://pennstate.pure.elsevier.com/en/persons/nina-g-jablonski) is Even Pugh Professor of Anthropology at Penn State University. She is Tina Lasisi's PhD advisor.
+- [Mark D. Shriver](https://pennstate.pure.elsevier.com/en/persons/mark-shriver) is Professor of Anthropology and Genetics at Penn State University. He is Tina Lasisi's PhD advisor.
+
+# What
+This website documents the protocols and methods developed as part of the *Hair Phenotyping Methods Project*. The methods developed are high-throughput and intended for use in large-scale projects such as genome-wide association studies. This website is updated frequently as the manuscript describing our methods progresses through the stages of review.
+
+# Why
+This website was created to share progress on the project with collaborators and the scientific community to facilitate open and reproducible science.
+
+# How
+This website was developed using [workflowr](https://github.com/jdblischak/workflowr), [rmarkdown](https://rmarkdown.rstudio.com/), and [GitHub](https://github.com/).

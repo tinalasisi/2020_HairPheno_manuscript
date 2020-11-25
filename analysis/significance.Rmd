@@ -1,0 +1,492 @@
+---
+title: "Biological Significance"
+author: "Tina Lasisi"
+date: "`r Sys.time()`"
+output:
+  workflowr::wflow_html:
+    toc: yes
+    number_sections: yes
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+
+library(tidyverse)
+library(knitr)
+library(cowplot)
+
+F = rprojroot::is_rstudio_project$make_fix_file()
+
+knitr::opts_chunk$set(echo = FALSE, include = TRUE, eval = TRUE, warning = FALSE, message = FALSE, fig.retina = 2, fig.width = 8, fig.height = 4)
+
+```
+
+
+```{r functions, include=FALSE}
+plot_path = F("output/")
+
+pltsave_func <- function(plot, plot_path, width, height){
+  ggsave(
+      filename = paste0(deparse(substitute(plot)), ".png"),
+      plot = plot, 
+      path = plot_path,
+      width = width,
+      height = height)
+  plot(plot)
+}
+
+```
+
+
+```{r read_df_admixed, include=FALSE}
+
+df_admixed <- read_csv(F("data/df_Admixed_Merged.csv"))
+colnames(df_admixed)[c(18:22)] = c("SAS","AMR","EUR","AFR","EAS")
+
+
+```
+
+To explore the significance of quantifying hair fiber morphology, we explore the relationship between various quantitative hair traits, categorical data and genotype data on the same sample. 
+
+
+```{r df_admixed_plt, include=FALSE}
+
+df_admixed_plt <- df_admixed %>%
+  group_by(ID, hair_texture, HairTypeBin, sex, age) %>%
+  summarize(area_mean = mean(area),
+         area_median = median(area),
+         min_mean = mean(min),
+         max_mean = mean(max),
+         min_median = median(min),
+         max_median = median(max),
+         eccentricity_mean = mean(eccentricity),
+         eccentricity_median = median(eccentricity),
+         curv_median = mean(curv_median),
+         curv_mean = mean(curv_mean),
+         length_mean = mean(length_mean),
+         length_median = mean(length_median),
+         SAS = mean(SAS),
+         AMR = mean(AMR),
+         EUR = mean(EUR),
+         AFR = mean(AFR),
+         EAS = mean(EAS),
+         hair_count = mean(hair_count),
+         m_index = mean(m_index))  %>%
+  mutate(hair_texture = str_to_title(hair_texture)) %>% 
+  filter(hair_count > 4 & AFR > 0.1)
+
+df_admixed_plt$hair_texture <- factor(df_admixed_plt$hair_texture, 
+                                     levels = c("Straight","Wavy",
+                                                "Curly",
+                                                "Very Curly",
+                                                NA))
+
+df_admixed_plt$HairTypeBin <- factor(df_admixed_plt$HairTypeBin, 
+                                     levels = c("Straight","Wavy",
+                                                "Curly",
+                                                "Very Curly"))
+
+# I filtered out anyone who had less than 5 hair fragments and I only kept the "first" reported ethnicity to make sure I didn't have duplicates of IDs
+
+```
+
+Our data consists of 193 individuals for whom we have quantitative hair phenotype data. In our first data quality control step, we filter to keep individuals who have more than 4 hair fragments in their curvature image and over 10% African ancestry. We calculate mean and median values for the cross-sectional data we have collected for individuals (~ 6 sectioned hair fibers). In our analyses, we use median values as they are less affected by intra-individual outliers.
+
+
+# Self-reported hair texture vs. quantitative
+
+We compare the self-reported hair texture with mean and median curvature for our sample. 
+
+```{r plt_admixed_SelfRepHair, fig.height=4, fig.width=8}
+
+
+plt_admixed_SelfRepHair_CurvMean <- df_admixed_plt %>%
+  filter(is.na(hair_texture)=="FALSE")%>%
+  ggplot(., aes(hair_texture,
+                      curv_mean))+
+  geom_violin(fill="#a6bddb",
+              scale = "width")+
+  geom_point(position = position_jitter(width=0.1),
+             alpha = 0.4)+
+  theme(axis.text.x = element_text(angle=90))+
+  labs(x = "Self reported hair texture",
+       y = bquote("Mean curvature ("*mm^-1*")"),
+       title = "Quantitative variation underlying \n self reported hair texture (mean)")+
+  theme_bw() +
+  coord_flip()
+
+
+plt_admixed_SelfRepHair_CurvMedian <- df_admixed_plt %>%
+  filter(is.na(hair_texture)=="FALSE")%>%
+  ggplot(., aes(hair_texture,
+                      curv_median))+
+  geom_violin(fill="#a6bddb",
+              scale = "width")+
+  geom_point(position = position_jitter(width=0.1),
+             alpha = 0.4)+
+  theme(axis.text.x = element_text(angle=90))+
+  labs(x = "Self reported hair texture",
+       y = bquote("Median curvature ("*mm^-1*")"),
+       title = "Quantitative variation underlying \n self reported hair texture (median)")+
+  theme_bw() +
+  coord_flip()
+
+plt_SelfRepCurv <- plot_grid(plt_admixed_SelfRepHair_CurvMean,
+          plt_admixed_SelfRepHair_CurvMedian, labels = c("a", "b"))
+
+plt_SelfRepCurv
+
+```
+
+The single individual with a high mean curvature in the straight group is the result of an artefact in the image. 
+
+```{r artefact_im}
+knitr::include_graphics("assets/artefact.jpg", error = FALSE)
+```
+
+The red arrow points to a stray fiber that likely contaminated the sample and was missed during imaging. Such potential outliers are the reason we chose to use the median curvature for a sample in our analyses.
+
+# Objective hair texture vs. quantitative
+
+To explore how much data is lost when binning continuous variation, we compared mean and median curvature to classified hair texture. This classification is based on Loussouarn et al.'s 2007 paper ["Worldwide diversity of hair curliness: a new method of assessment](https://doi.org/10.1111/j.1365-4632.2007.03453.x). 
+
+While the authors propose a number of parameters to distinguish curlier hair types (based on number of twists and waves among other factors), their primary classification is based on curvature. We demonstrate that, regardless of additional parameters, a considerable range of curvature is obscured when collapsing hair variation according to their curvature thresholds.
+
+```{r plt_admixed_HairTypeBin}
+
+plt_admixed_HairTypeBin_CurvMean <- df_admixed_plt %>%
+  mutate(HairTypeBin_mean = 
+           factor(case_when(
+             curv_mean<= (1/54) ~ 'Straight',
+             curv_mean<= (1/28.5) ~ 'Wavy',
+             curv_mean<= (1/6) ~ 'Curly',
+             TRUE ~ 'Very Curly'), 
+             levels = c("Straight", "Wavy", "Curly", "Very Curly"))) %>% 
+  ggplot(., aes(HairTypeBin_mean,
+                      curv_mean))+
+  geom_violin(fill="#a6bddb", scale = "width")+
+  geom_point(position = position_jitter(width=0.1),
+             alpha = 0.4)+
+  theme(axis.text.x = element_text(angle=90))+
+  labs(x = "Classified hair texture \n(based on median curvature)",
+       y = bquote("Mean curvature ("*mm^-1*")")) +
+  theme_bw() +
+  coord_flip()
+
+
+plt_admixed_HairTypeBin_CurvMedian <- df_admixed_plt %>%
+  mutate(HairTypeBin_median = 
+           factor(case_when(
+             curv_median<= (1/54) ~ 'Straight',
+             curv_median<= (1/28.5) ~ 'Wavy',
+             curv_median<= (1/6) ~ 'Curly',
+             TRUE ~ 'Very Curly'), levels = c("Straight", "Wavy", "Curly", "Very Curly"))) %>% 
+  ggplot(., aes(HairTypeBin_median,
+                      curv_median))+
+  geom_violin(fill="#a6bddb", scale = "width")+
+  geom_point(position = position_jitter(width=0.1),
+             alpha = 0.4)+
+  theme(axis.text.x = element_text(angle=90))+
+  labs(x = "Classified hair texture \n(based on median curvature)",
+       y = bquote("Median curvature ("*mm^-1*")"))+
+  theme_bw() +
+  coord_flip()
+
+plt_HairBin <- plot_grid(plt_admixed_HairTypeBin_CurvMean,
+          plt_admixed_HairTypeBin_CurvMedian, labels = c("a", "b"))
+
+
+plt_HairBin
+```
+
+
+```{r imsave_QualQuant, include=FALSE}
+# Saving different images for manuscript
+
+plt_QualQuant_CurvMedian <- plot_grid((plt_admixed_SelfRepHair_CurvMedian + ggtitle(" Median curvature vs. \nSelf-reported hair texture")), (plt_admixed_HairTypeBin_CurvMedian + ggtitle("Median curvature vs. \nClassified hair texture")), labels = c("a", "b"))
+  
+
+pltsave_func(plt_QualQuant_CurvMedian, plot_path, width = 8, height = 4)
+
+```
+
+# Ancestry vs. hair morphology 
+
+We carried out a number of analyses using the genotype data collected for this diverse sample. In an admixed sample where a continuous trait has divergent distributions in the parental ancestry groups, the resulting admixed population can show a correlation between ancestry and that trait. Finding such a correlation suggests may imply a polygenic trait with high heritability.
+
+## Admixture components
+Our sample consists of admixed individuals with primarily African and European ancestry.
+
+```{r plt_admixture, fig.height=5, fig.width=10}
+
+anc <- df_admixed_plt %>% 
+  ungroup() %>% 
+  select(ID, SAS, AMR, AFR, EUR, EAS) %>% 
+  arrange(AFR)
+
+anc$ID <- factor(anc$ID, levels = anc$ID)
+
+manc = reshape2::melt(anc, id.vars="ID")
+
+plt_manc = ggplot(manc)+
+  geom_bar(aes(ID,value, fill=variable),
+           stat = "identity",
+           width=1)+
+  theme_bw()+
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())+
+  labs(x = "Individuals",
+       y = "Ancestry",
+       fill = "Population")+
+  scale_fill_manual(values = c(
+    "#e41a1c",
+    "#377eb8",
+    "#4daf4a",
+    "#984ea3",
+    "#ff7f00"
+  ))
+
+plt_manc
+
+```
+
+The colors represent ancestries that correspond to the following 1000 Genomes populations:
+- SAS = South Asian
+- AMR = American
+- AFR = African
+- EUR = European
+- EAS = East Asian
+
+Each of these are metapopulations based on the grouping of multiple (sub)continental population groups in the [1000 Genomes repository](https://www.internationalgenome.org/category/population/).
+
+## Ancestry vs. curvature
+
+Here we plot the correlation between proportion of African ancestry and m-index, median curvature, and eccentricity.
+
+```{r stats_anc_corr, include=FALSE}
+r2_mindex_afr = with(df_admixed_plt, cor(AFR, m_index,
+                                         use = "complete.obs"))
+
+r2_mindex_afr
+
+r2_curv_afr = with(df_admixed_plt, cor(AFR, curv_median))
+
+r2_curv_afr
+
+r2_ecc_afr = with(df_admixed_plt, cor(AFR, eccentricity_median, 
+                                      use = "complete.obs"))
+
+r2_ecc_afr
+```
+
+
+```{r plt_anc_corr, fig.height=10, fig.width=7}
+plt_mindex_afr = ggplot(df_admixed_plt, 
+              aes(AFR, m_index))+
+  geom_point(alpha = 0.7)+
+  stat_smooth(method = "lm")+
+  theme_classic()+
+  labs(x = "African Ancestry",
+       y = bquote("Melanin index"))+
+  annotate(geom="text",x = 0.2, y = 70,
+           label = bquote(r^2*" = 0.83"))
+
+
+plt_curv_afr = ggplot(df_admixed_plt, 
+              aes(AFR, curv_median))+
+  geom_point(alpha = 0.7)+
+  stat_smooth(method = "lm")+
+  theme_classic()+
+  labs(x = "African Ancestry",
+       y = bquote("Median curvature ("*mm^-1*")"))+
+  annotate(geom="text",x = 0.2, y = 0.7,
+           label = bquote(r^2*" = 0.85"))
+
+
+plt_ecc_afr = ggplot(df_admixed_plt, 
+              aes(AFR, eccentricity_median))+
+  geom_point(alpha = 0.7)+
+  stat_smooth(method = "lm")+
+  theme_classic()+
+  labs(x = "African Ancestry",
+       y = bquote("Eccentricity"))+
+  annotate(geom="text",x = 0.3, y = 0.5,
+           label = bquote(r^2*" = 0.56"))
+
+
+plt_trait_afr <- plot_grid(plt_mindex_afr, plt_curv_afr, plt_ecc_afr, labels = c("a", "b", "c"), nrow = 3, ncol = 1)
+
+
+plt_trait_afr
+
+```
+
+
+## Curvature vs. eccentricity
+
+The relationship between cross-sectional shape (eccentricity) and curvature has long been debated. Due to the coincidence of cross-sectional shape and curvature in various populations that are often contrasted (i.e. East Asian vs. North European vs. West African), it has been unclear whether these traits have a causal relationship (specifically that higher eccentricity predicts higher curvature). In our admixed sample, we have the opportunity to test this question and fit a model between these traits with and without ancestry.
+
+```{r df_curv_ecc}
+df_curv_ecc = df_admixed_plt %>%
+  ungroup() %>%
+  select(curv_median, eccentricity_median, AFR)%>%
+  drop_na()
+```
+
+### Uncorrected
+First we examine the data without correcting for ancestry.
+
+```{r stats_curv_ecc}
+lcurv_ecc.1 = lm(data = df_curv_ecc, 
+                 curv_median ~ eccentricity_median)
+
+summary(lcurv_ecc.1)
+```
+
+
+```{r plt_curv_ecc}
+
+
+evc1 = ggplot(df_curv_ecc, aes(eccentricity_median,
+                               curv_median))+
+  geom_point()+
+  theme_classic()+
+  stat_smooth(method="lm")+
+  labs(y = "Curvature",
+       x = "Eccentricity (median)",
+       title = "Curvature vs eccentricity \n (ancestry uncorrected)")+
+  annotate(geom = "text",
+          x = 0.4, y = 0.4, hjust = 0,
+          label = "p-value = 1.96e-08")
+
+evc1
+```
+
+If we consider the relationship between curvature and eccentricity without taking into account ancestry, we find that eccentricity is a significant predictor of curvature.
+
+### Corrected
+
+We then re-analyze the data with ancestry as a covariate. 
+
+```{r stats_curv_ecc_anc}
+
+
+lcurv_ecc.2 = lm(data = df_curv_ecc, 
+                 curv_median ~ AFR)
+
+lcurv_ecc.3 = lm(data = df_curv_ecc, 
+                 curv_median ~ eccentricity_median + AFR)
+
+summary(lcurv_ecc.3)
+```
+
+
+```{r plt_curv_ecc_anc}
+#turns out the correlation between curvature and eccentricity is due to stratification.
+df_curv_ecc = df_curv_ecc %>%
+  mutate(resid1 = resid(lcurv_ecc.2))
+
+evc2 = ggplot(df_curv_ecc, aes(eccentricity_median,
+                               resid1))+
+  geom_point()+
+  theme_classic()+
+  stat_smooth(method="lm")+
+  labs(y = "Curvature (ancestry corrected)",
+       x = "Eccentricity",
+       title = "Curvature vs eccentricity \n (ancestry corrected)")+
+  annotate(geom = "text",
+           x = 0.4, y = 0.4, hjust = 0,
+           label = "p-value = 0.386")
+  
+evc2
+
+```
+
+However, when we correct for ancestry, this correlation is no longer significant. This supports the idea that these traits may be independent. 
+
+## Curvature vs. skin pigmentation
+
+To demonstrate the potential effect of population stratification on traits, we compare hair curvature with skin pigmentation (m-index). These two traits are not biologically related, yet, in an admixed population, we may see a correlation that is due to population stratification of these polygenic traits.
+
+### Uncorrected
+
+First we examine the relationship between curvature and skin pigmentation without correcting for ancestry.
+
+```{r stats_curv_mindex}
+df_curv_mindex = df_admixed_plt %>%
+  ungroup() %>%
+  select(curv_median, m_index, AFR)%>%
+  drop_na()
+
+lcurv_mindex.1 = lm(data = df_curv_mindex, 
+                    curv_median ~ m_index)
+
+summary(lcurv_mindex.1)
+```
+
+
+```{r plt_curv_mindex}
+mvc_uncorrected = ggplot(df_curv_mindex,
+                         aes(m_index,
+                                    curv_median))+
+  geom_point()+
+  theme_classic()+
+  labs(x = "Melanin index",
+       y = "Curvature",
+       title = "Curvature vs melanin index \n (ancestry uncorrected)")+
+  stat_smooth(method="lm")+
+  annotate(geom = "text",
+           x = 50, y = 0.15, 
+           label = "p-value < 2e-16")
+
+mvc_uncorrected
+
+```
+
+As expected, we see a significant correlation between the two traits.
+
+### Corrected
+
+We then apply a correction for ancestry and re-analyze the data. 
+
+```{r stats_curv_mindex_anc}
+lcurv_mindex.2 = lm(data = df_curv_mindex, 
+                    curv_median ~ AFR)
+
+lcurv_mindex.3 = lm(data = df_curv_mindex, 
+                    curv_median ~ m_index + AFR)
+
+summary(lcurv_mindex.3)
+```
+
+
+```{r plt_curv_mindex_anc}
+df_curv_mindex$resid1 = resid(lcurv_mindex.2)
+
+mvc_corrected = ggplot(df_curv_mindex,
+                       aes(m_index, 
+                           resid1))+
+  geom_point()+
+  theme_classic()+
+  labs(x = "Melanin index",
+       y = "Curvature (ancestry corrected)",
+       title = "Curvature vs melanin index \n(ancestry corrected)")+
+  stat_smooth(method="lm")+
+    annotate(geom = "text",
+           x = 55, y = 0.35, 
+           label = "p-value = 0.065")
+
+mvc_corrected
+
+```
+
+Like with curvature and eccentricity, the relationship between curvature and skin pigmentation is no longer significant when ancestry is taken into account. 
+
+```{r imsave_mvc_evc_combo, include=FALSE}
+
+plt_strat <- plot_grid(mvc_uncorrected, mvc_corrected, evc1, evc2, labels = c("a", "b", "c", "d"), nrow = 2, ncol = 2)
+
+pltsave_func(plt_strat, plot_path, width = 8, height = 8)
+```
+

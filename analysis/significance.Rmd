@@ -143,7 +143,10 @@ plt_SelfRepCurv
 The single individual with a high mean curvature in the straight group is the result of an artefact in the image. 
 
 ```{r artefact_im, fig.cap= "Image of hair sample with artefact biasing the measurement"}
-knitr::include_graphics("../docs/assets/artefact.jpg", error = FALSE)
+# knitr for PDF document
+# knitr::include_graphics("../docs/assets/artefact.jpg", error = FALSE)
+# knitr for workflowr HTML
+knitr::include_graphics("assets/artefact.jpg", error = FALSE)
 ```
 
 The red arrow points to a stray fiber that likely contaminated the sample and was missed during imaging. Such potential outliers are the reason we chose to use the median curvature for a sample in our analyses.

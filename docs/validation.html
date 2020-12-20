@@ -404,7 +404,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Validation</h1>
 <h4 class="author">Tina Lasisi</h4>
-<h4 class="date">2020-11-24 20:14:09</h4>
+<h4 class="date">2020-12-20 16:02:36</h4>
 
 </div>
 
@@ -429,7 +429,7 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2020-11-24
+<strong>Last updated:</strong> 2020-12-20
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -520,29 +520,32 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrong7ddd3f7"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> 7ddd3f7 </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomtinalasisi2020HairPhenomanuscripttree5f6c13808bbf0c07bb670ef913bfcd4b794a9765targetblank5f6c138a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/tinalasisi/2020_HairPheno_manuscript/tree/5f6c13808bbf0c07bb670ef913bfcd4b794a9765" target="_blank">5f6c138</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrong7ddd3f7" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomtinalasisi2020HairPhenomanuscripttree5f6c13808bbf0c07bb670ef913bfcd4b794a9765targetblank5f6c138a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version 7ddd3f7. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/tinalasisi/2020_HairPheno_manuscript/tree/5f6c13808bbf0c07bb670ef913bfcd4b794a9765" target="_blank">5f6c138</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 </p>
 <pre><code>
 Ignored files:
+    Ignored:    .Rhistory
     Ignored:    .Rproj.user/
 
 Untracked files:
-    Untracked:  _workflowr.yml
+    Untracked:  code/sim_curvature.R
+    Untracked:  code/sim_ellipse.py
 
 Unstaged changes:
-    Modified:   .gitignore
+    Modified:   .DS_Store
+    Deleted:    code/simhair.R
 
 </code></pre>
 <p>
@@ -586,7 +589,41 @@ Message
 Rmd
 </td>
 <td>
-7ddd3f7
+<a href="https://github.com/tinalasisi/2020_HairPheno_manuscript/blob/5f6c13808bbf0c07bb670ef913bfcd4b794a9765/analysis/validation.Rmd" target="_blank">5f6c138</a>
+</td>
+<td>
+tinalasisi
+</td>
+<td>
+2020-12-20
+</td>
+<td>
+wflow_publish("analysis/*", update = TRUE)
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/tinalasisi/2020_HairPheno_manuscript/68f0ec2cce35a807b313cdbd108d9203de4775be/docs/validation.html" target="_blank">68f0ec2</a>
+</td>
+<td>
+tinalasisi
+</td>
+<td>
+2020-11-24
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/tinalasisi/2020_HairPheno_manuscript/blob/7ddd3f7f1e18eb327108f32dd2765c4f623717f8/analysis/validation.Rmd" target="_blank">7ddd3f7</a>
 </td>
 <td>
 tinalasisi
@@ -603,7 +640,7 @@ Initial commit
 html
 </td>
 <td>
-7ddd3f7
+<a href="https://rawcdn.githack.com/tinalasisi/2020_HairPheno_manuscript/7ddd3f7f1e18eb327108f32dd2765c4f623717f8/docs/validation.html" target="_blank">7ddd3f7</a>
 </td>
 <td>
 tinalasisi
@@ -630,7 +667,12 @@ Initial commit
 <div id="simulated-vs.-estimated-curvature-length" class="section level2">
 <h2>Simulated vs. estimated curvature &amp; length</h2>
 <p>To calculate the accuracy of our measurements, we compared the known parameters with the parameters estimated from our fibermorph package.</p>
-<p><img src="figure/validation.Rmd/plt_curvature_corr_length-1.png" width="768" style="display: block; margin: auto;" /></p>
+<div class="figure" style="text-align: center">
+<img src="figure/validation.Rmd/plt_curvature_corr_length-1.png" alt="Error in estimated curvature and length" width="100%" />
+<p class="caption">
+Error in estimated curvature and length
+</p>
+</div>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-plt_curvature_corr_length-1">
 Past versions of plt_curvature_corr_length-1.png
@@ -655,7 +697,7 @@ Date
 <tbody>
 <tr>
 <td>
-7ddd3f7
+<a href="https://github.com/tinalasisi/2020_HairPheno_manuscript/blob/7ddd3f7f1e18eb327108f32dd2765c4f623717f8/docs/figure/validation.Rmd/plt_curvature_corr_length-1.png" target="_blank">7ddd3f7</a>
 </td>
 <td>
 tinalasisi
@@ -668,9 +710,14 @@ tinalasisi
 </table>
 </div>
 </div>
-<p>In Fig.a we see that there is a near perfect correlation between the simulated and estimated curvatures. Fig.b shows the distribution of estimated hair lengths around the simulated length (red line).</p>
+<p>In Fig. 1a we see that there is a near perfect correlation between the simulated and estimated curvatures. Fig. 1b shows the distribution of estimated hair lengths around the simulated length (red line).</p>
 <p>We plot simulated curvature against estimated length to show the distribution of estimated length as a function of curvature.</p>
-<p><img src="figure/validation.Rmd/plt_length_curv-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="figure" style="text-align: center">
+<img src="figure/validation.Rmd/plt_length_curv-1.png" alt="Simulated curvature vs estimated length" width="100%" />
+<p class="caption">
+Simulated curvature vs estimated length
+</p>
+</div>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-plt_length_curv-1">
 Past versions of plt_length_curv-1.png
@@ -695,7 +742,7 @@ Date
 <tbody>
 <tr>
 <td>
-7ddd3f7
+<a href="https://github.com/tinalasisi/2020_HairPheno_manuscript/blob/7ddd3f7f1e18eb327108f32dd2765c4f623717f8/docs/figure/validation.Rmd/plt_length_curv-1.png" target="_blank">7ddd3f7</a>
 </td>
 <td>
 tinalasisi
@@ -708,7 +755,7 @@ tinalasisi
 </table>
 </div>
 </div>
-<p>There seems to be a broader range of error in the estimation of length in straighter hairs. This is likely a result of the majority of pixels being oriented in a manner that causes a divergence between the pixel length (number of pixels) and the real length that is being measured. We apply a correction for this known issue in image analysis, however, it is expected that there will still be some error. Note that each point in this figure represents an individual hair fragment within an image. This supports the notion that it is not the low curvature per se, but rather the combination of low curvature and specific orientations that increases the error in length estimation.</p>
+<p>Figure 2 shows a broader range of error in the estimation of length in straighter hairs. This is likely a result of the majority of pixels being oriented in a manner that causes a divergence between the pixel length (number of pixels) and the real length that is being measured. We apply a correction for this known issue in image analysis, however, it is expected that there will still be some error. Note that each point in this figure represents an individual hair fragment within an image. This supports the notion that it is not the low curvature per se, but rather the combination of low curvature and specific orientations that increases the error in length estimation.</p>
 </div>
 <div id="measurement-error-in-curvature-and-length" class="section level2">
 <h2>Measurement error in curvature and length</h2>
@@ -750,7 +797,12 @@ tinalasisi
 <div id="root-mean-square-error" class="section level3">
 <h3>Root mean square error</h3>
 <p>First, we plot the root mean square error for curvature and length.</p>
-<p><img src="figure/validation.Rmd/plt_rmse_curv-1.png" width="768" style="display: block; margin: auto;" /></p>
+<div class="figure" style="text-align: center">
+<img src="figure/validation.Rmd/plt_rmse_curv-1.png" alt="Root mean square error for curvature and length" width="100%" />
+<p class="caption">
+Root mean square error for curvature and length
+</p>
+</div>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-plt_rmse_curv-1">
 Past versions of plt_rmse_curv-1.png
@@ -775,7 +827,7 @@ Date
 <tbody>
 <tr>
 <td>
-7ddd3f7
+<a href="https://github.com/tinalasisi/2020_HairPheno_manuscript/blob/7ddd3f7f1e18eb327108f32dd2765c4f623717f8/docs/figure/validation.Rmd/plt_rmse_curv-1.png" target="_blank">7ddd3f7</a>
 </td>
 <td>
 tinalasisi
@@ -789,7 +841,12 @@ tinalasisi
 </div>
 </div>
 <p>We then examine the relationship between curvature and RMSE of length</p>
-<p><img src="figure/validation.Rmd/plt_length_curv_rmse-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="figure" style="text-align: center">
+<img src="figure/validation.Rmd/plt_length_curv_rmse-1.png" alt="Correlation between curvature and RMSE for length" width="100%" />
+<p class="caption">
+Correlation between curvature and RMSE for length
+</p>
+</div>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-plt_length_curv_rmse-1">
 Past versions of plt_length_curv_rmse-1.png
@@ -814,7 +871,7 @@ Date
 <tbody>
 <tr>
 <td>
-7ddd3f7
+<a href="https://github.com/tinalasisi/2020_HairPheno_manuscript/blob/7ddd3f7f1e18eb327108f32dd2765c4f623717f8/docs/figure/validation.Rmd/plt_length_curv_rmse-1.png" target="_blank">7ddd3f7</a>
 </td>
 <td>
 tinalasisi
@@ -832,7 +889,12 @@ tinalasisi
 <div id="percent-error" class="section level3">
 <h3>Percent error</h3>
 <p>Below we plot the percent error for curvature and length.</p>
-<p><img src="figure/validation.Rmd/plt_perror_curv-1.png" width="768" style="display: block; margin: auto;" /></p>
+<div class="figure" style="text-align: center">
+<img src="figure/validation.Rmd/plt_perror_curv-1.png" alt="Percent error for curvature and length" width="100%" />
+<p class="caption">
+Percent error for curvature and length
+</p>
+</div>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-plt_perror_curv-1">
 Past versions of plt_perror_curv-1.png
@@ -857,7 +919,7 @@ Date
 <tbody>
 <tr>
 <td>
-7ddd3f7
+<a href="https://github.com/tinalasisi/2020_HairPheno_manuscript/blob/7ddd3f7f1e18eb327108f32dd2765c4f623717f8/docs/figure/validation.Rmd/plt_perror_curv-1.png" target="_blank">7ddd3f7</a>
 </td>
 <td>
 tinalasisi
@@ -870,7 +932,12 @@ tinalasisi
 </table>
 </div>
 </div>
-<p><img src="figure/validation.Rmd/plt_length_curv_perror-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="figure" style="text-align: center">
+<img src="figure/validation.Rmd/plt_length_curv_perror-1.png" alt="Correlation between curvature and percent error for estimated length" width="100%" />
+<p class="caption">
+Correlation between curvature and percent error for estimated length
+</p>
+</div>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-plt_length_curv_perror-1">
 Past versions of plt_length_curv_perror-1.png
@@ -895,7 +962,7 @@ Date
 <tbody>
 <tr>
 <td>
-7ddd3f7
+<a href="https://github.com/tinalasisi/2020_HairPheno_manuscript/blob/7ddd3f7f1e18eb327108f32dd2765c4f623717f8/docs/figure/validation.Rmd/plt_length_curv_perror-1.png" target="_blank">7ddd3f7</a>
 </td>
 <td>
 tinalasisi
@@ -917,7 +984,12 @@ tinalasisi
 <p>The fibermorph section function estimates area, minimum diameter, maximum diameter and eccentricity for a given cross-sectional image. We tested the measurement error using randomly generated circles and non-circular ellipses.</p>
 <div id="correlation-between-simulated-and-estimated-section-parameters" class="section level2">
 <h2>Correlation between simulated and estimated section parameters</h2>
-<p><img src="figure/validation.Rmd/plt_section_correlation-1.png" width="768" style="display: block; margin: auto;" /></p>
+<div class="figure" style="text-align: center">
+<img src="figure/validation.Rmd/plt_section_correlation-1.png" alt="FCorrelation between simulated and estimated cross-sectional parameters" width="100%" />
+<p class="caption">
+FCorrelation between simulated and estimated cross-sectional parameters
+</p>
+</div>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-plt_section_correlation-1">
 Past versions of plt_section_correlation-1.png
@@ -942,7 +1014,7 @@ Date
 <tbody>
 <tr>
 <td>
-7ddd3f7
+<a href="https://github.com/tinalasisi/2020_HairPheno_manuscript/blob/7ddd3f7f1e18eb327108f32dd2765c4f623717f8/docs/figure/validation.Rmd/plt_section_correlation-1.png" target="_blank">7ddd3f7</a>
 </td>
 <td>
 tinalasisi
@@ -1030,7 +1102,12 @@ tinalasisi
 <div id="root-mean-square-error-1" class="section level3">
 <h3>Root mean square error</h3>
 <p>Below, we plot RMSE as a function of each parameter.</p>
-<p><img src="figure/validation.Rmd/plt_section_RMSE-1.png" width="768" style="display: block; margin: auto;" /></p>
+<div class="figure" style="text-align: center">
+<img src="figure/validation.Rmd/plt_section_RMSE-1.png" alt="Correlation between simulated and RMSE for cross-sectional parameters" width="100%" />
+<p class="caption">
+Correlation between simulated and RMSE for cross-sectional parameters
+</p>
+</div>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-plt_section_RMSE-1">
 Past versions of plt_section_RMSE-1.png
@@ -1055,7 +1132,7 @@ Date
 <tbody>
 <tr>
 <td>
-7ddd3f7
+<a href="https://github.com/tinalasisi/2020_HairPheno_manuscript/blob/7ddd3f7f1e18eb327108f32dd2765c4f623717f8/docs/figure/validation.Rmd/plt_section_RMSE-1.png" target="_blank">7ddd3f7</a>
 </td>
 <td>
 tinalasisi
@@ -1073,7 +1150,12 @@ tinalasisi
 <div id="percent-error-1" class="section level3">
 <h3>Percent error</h3>
 <p>Below we plot the correlation between simulated values and percent error for each parameter.</p>
-<p><img src="figure/validation.Rmd/plt_section_corr-1.png" width="768" style="display: block; margin: auto;" /></p>
+<div class="figure" style="text-align: center">
+<img src="figure/validation.Rmd/plt_section_corr-1.png" alt="Correlation between simulated and percent error cross-sectional parameters" width="100%" />
+<p class="caption">
+Correlation between simulated and percent error cross-sectional parameters
+</p>
+</div>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-plt_section_corr-1">
 Past versions of plt_section_corr-1.png
@@ -1098,7 +1180,7 @@ Date
 <tbody>
 <tr>
 <td>
-7ddd3f7
+<a href="https://github.com/tinalasisi/2020_HairPheno_manuscript/blob/7ddd3f7f1e18eb327108f32dd2765c4f623717f8/docs/figure/validation.Rmd/plt_section_corr-1.png" target="_blank">7ddd3f7</a>
 </td>
 <td>
 tinalasisi

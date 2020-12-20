@@ -15,7 +15,7 @@ library(truncnorm)
 library(reshape2)
 library(data.table)
 
-knitr::opts_chunk$set(echo = FALSE, include = TRUE, eval = TRUE, warning = FALSE, message = FALSE, fig.retina = 2, fig.width = 8, fig.height = 4)
+knitr::opts_chunk$set(echo = FALSE, include = TRUE, eval = TRUE, warning = FALSE, message = FALSE, fig.retina = 2, fig.width = 8, fig.height = 4, out.width = "100%")
 
 F = rprojroot::is_rstudio_project$make_fix_file()
 
@@ -85,7 +85,7 @@ We simulated arcs of various curvatures at a length of 1.57mm. There were 25 arc
 ## Simulated vs. estimated curvature & length
 To calculate the accuracy of our measurements, we compared the known parameters with the parameters estimated from our fibermorph package.
 
-```{r plt_curvature_corr_length}
+```{r plt_curvature_corr_length, fig.cap= "Error in estimated curvature and length"}
 # Plot estimated curvature vs true curvature
 
 plt_curvature <- dat %>% 
@@ -124,14 +124,14 @@ plt_curv_length_corr_hist = plot_grid(plt_curvature, plt_length_histo, labels = 
 
 
 plt_curv_length_corr_hist
-
 ```
 
-In Fig.a we see that there is a near perfect correlation between the simulated and estimated curvatures. Fig.b shows the distribution of estimated hair lengths around the simulated length (red line). 
+
+In Fig. 1a we see that there is a near perfect correlation between the simulated and estimated curvatures. Fig. 1b shows the distribution of estimated hair lengths around the simulated length (red line). 
 
 We plot simulated curvature against estimated length to show the distribution of estimated length as a function of curvature.
 
-```{r plt_length_curv, fig.height=6, fig.width=7}
+```{r plt_length_curv, fig.height=6, fig.width=7, fig.cap= "Simulated curvature vs estimated length"}
 
 plt_length_curv <- dat %>% 
   pivot_wider(id_cols = c(ID, elem_ID), names_from = var, values_from = c(sim, est))%>% 
@@ -145,13 +145,12 @@ plt_length_curv <- dat %>%
   scale_color_viridis_c()+
   theme_classic()+
   labs(x = bquote("Simulated curvature ("*mm^-1*")"),
-       y = bquote("Estimated length in mm"),
-       title = "Simulated curvature vs estimated length")
+       y = bquote("Estimated length in mm"))
 
 plt_length_curv
 ```
 
-There seems to be a broader range of error in the estimation of length in straighter hairs. This is likely a result of the majority of pixels being oriented in a manner that causes a divergence between the pixel length (number of pixels) and the real length that is being measured. We apply a correction for this known issue in image analysis, however, it is expected that there will still be some error. Note that each point in this figure represents an individual hair fragment within an image. This supports the notion that it is not the low curvature per se, but rather the combination of low curvature and specific orientations that increases the error in length estimation.
+Figure 2 shows a broader range of error in the estimation of length in straighter hairs. This is likely a result of the majority of pixels being oriented in a manner that causes a divergence between the pixel length (number of pixels) and the real length that is being measured. We apply a correction for this known issue in image analysis, however, it is expected that there will still be some error. Note that each point in this figure represents an individual hair fragment within an image. This supports the notion that it is not the low curvature per se, but rather the combination of low curvature and specific orientations that increases the error in length estimation.
 
 ## Measurement error in curvature and length
 
@@ -194,7 +193,7 @@ Below, we plot the data.
 ### Root mean square error
 First, we plot the root mean square error for curvature and length. 
 
-```{r plt_rmse_curv}
+```{r plt_rmse_curv, fig.cap= "Root mean square error for curvature and length"}
 
 plt_rmse_curvature <- dat.se %>% 
   filter(var == "curvature") %>% 
@@ -232,7 +231,7 @@ plt_rmse
 
 We then examine the relationship between curvature and RMSE of length
 
-```{r plt_length_curv_rmse, fig.height=5, fig.width=7}
+```{r plt_length_curv_rmse, fig.height=5, fig.width=7, fig.cap= "Correlation between curvature and RMSE for length"}
 
 plt_length_curv_rmse <- dat.se %>% 
   pivot_wider(id_cols = c(ID), names_from = var, values_from = c(sim, rmse, rmse))%>% 
@@ -257,7 +256,7 @@ We observe an increase in RMSE with curvature.
 
 Below we plot the percent error for curvature and length. 
 
-```{r plt_perror_curv}
+```{r plt_perror_curv, fig.cap= "Percent error for curvature and length"}
 
 plt_perror_curvature <- dat.se %>% 
   filter(var == "curvature") %>% 
@@ -294,7 +293,7 @@ plt_perror
 ```
 
 
-```{r plt_length_curv_perror, fig.height=5, fig.width=7}
+```{r plt_length_curv_perror, fig.height=5, fig.width=7, fig.cap= "Correlation between curvature and percent error for estimated length"}
 
 plt_length_curv_perror <- dat.se %>% 
   pivot_wider(id_cols = c(ID), names_from = var, values_from = c(sim, rmse, percent.error))%>% 
@@ -328,7 +327,7 @@ df_section <- read_csv(F("data/df_section_validation.csv"))
 ## Correlation between simulated and estimated section parameters
 
 
-```{r plt_section_correlation, fig.height=8, fig.width=8}
+```{r plt_section_correlation, fig.height=8, fig.width=8, fig.cap= "FCorrelation between simulated and estimated cross-sectional parameters"}
 plt_area = ggplot(df_section, aes(ref_area,area))+
   geom_point()+
   theme_classic()+
@@ -435,7 +434,7 @@ kable(err_var, caption = "RMSE and Percent Error per variable")
 ### Root mean square error
 Below, we plot RMSE as a function of each parameter.
 
-```{r plt_section_RMSE, fig.height=8, fig.width=8}
+```{r plt_section_RMSE, fig.height=8, fig.width=8, fig.cap= "Correlation between simulated and RMSE for cross-sectional parameters"}
 
 
 plt_rmse_area <- section_se %>% 
@@ -497,7 +496,7 @@ There does not appear to be any overarching pattern in RMSE across the variables
 ### Percent error
 Below we plot the correlation between simulated values and percent error for each parameter. 
 
-```{r plt_section_corr, fig.height=8, fig.width=8}
+```{r plt_section_corr, fig.height=8, fig.width=8, fig.cap= "Correlation between simulated and percent error cross-sectional parameters"}
 
 plt_perror_area <- section_se %>% 
   filter(var == "area") %>% 

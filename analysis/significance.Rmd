@@ -6,6 +6,7 @@ output:
   workflowr::wflow_html:
     toc: yes
     number_sections: yes
+  pdf_document: default
 editor_options:
   chunk_output_type: console
 ---
@@ -18,7 +19,7 @@ library(cowplot)
 
 F = rprojroot::is_rstudio_project$make_fix_file()
 
-knitr::opts_chunk$set(echo = FALSE, include = TRUE, eval = TRUE, warning = FALSE, message = FALSE, fig.retina = 2, fig.width = 8, fig.height = 4)
+knitr::opts_chunk$set(echo = FALSE, include = TRUE, eval = TRUE, warning = FALSE, message = FALSE, fig.retina = 2, fig.width = 8, fig.height = 4, out.width = "100%")
 
 ```
 
@@ -94,11 +95,11 @@ df_admixed_plt$HairTypeBin <- factor(df_admixed_plt$HairTypeBin,
 Our data consists of 193 individuals for whom we have quantitative hair phenotype data. In our first data quality control step, we filter to keep individuals who have more than 4 hair fragments in their curvature image and over 10% African ancestry. We calculate mean and median values for the cross-sectional data we have collected for individuals (~ 6 sectioned hair fibers). In our analyses, we use median values as they are less affected by intra-individual outliers.
 
 
-# Self-reported hair texture vs. quantitative
+# Self-reported hair texture vs. quantitative hair curvature
 
 We compare the self-reported hair texture with mean and median curvature for our sample. 
 
-```{r plt_admixed_SelfRepHair, fig.height=4, fig.width=8}
+```{r plt_admixed_SelfRepHair, fig.height=4, fig.width=8, fig.cap= "Self-reported hair texture vs. quantitative hair curvature"}
 
 
 plt_admixed_SelfRepHair_CurvMean <- df_admixed_plt %>%
@@ -141,19 +142,19 @@ plt_SelfRepCurv
 
 The single individual with a high mean curvature in the straight group is the result of an artefact in the image. 
 
-```{r artefact_im}
-knitr::include_graphics("assets/artefact.jpg", error = FALSE)
+```{r artefact_im, fig.cap= "Image of hair sample with artefact biasing the measurement"}
+knitr::include_graphics("../docs/assets/artefact.jpg", error = FALSE)
 ```
 
 The red arrow points to a stray fiber that likely contaminated the sample and was missed during imaging. Such potential outliers are the reason we chose to use the median curvature for a sample in our analyses.
 
-# Objective hair texture vs. quantitative
+# Objective hair texture classification vs. quantitative curvature
 
 To explore how much data is lost when binning continuous variation, we compared mean and median curvature to classified hair texture. This classification is based on Loussouarn et al.'s 2007 paper ["Worldwide diversity of hair curliness: a new method of assessment](https://doi.org/10.1111/j.1365-4632.2007.03453.x). 
 
 While the authors propose a number of parameters to distinguish curlier hair types (based on number of twists and waves among other factors), their primary classification is based on curvature. We demonstrate that, regardless of additional parameters, a considerable range of curvature is obscured when collapsing hair variation according to their curvature thresholds.
 
-```{r plt_admixed_HairTypeBin}
+```{r plt_admixed_HairTypeBin, fig.cap= "Objective hair classification vs. quantitative curvature"}
 
 plt_admixed_HairTypeBin_CurvMean <- df_admixed_plt %>%
   mutate(HairTypeBin_mean = 
@@ -218,7 +219,7 @@ We carried out a number of analyses using the genotype data collected for this d
 ## Admixture components
 Our sample consists of admixed individuals with primarily African and European ancestry.
 
-```{r plt_admixture, fig.height=5, fig.width=10}
+```{r plt_admixture, fig.height=5, fig.width=10, fig.cap= "Admixture components for sample"}
 
 anc <- df_admixed_plt %>% 
   ungroup() %>% 
@@ -281,7 +282,7 @@ r2_ecc_afr
 ```
 
 
-```{r plt_anc_corr, fig.height=10, fig.width=7}
+```{r plt_anc_corr, fig.height=10, fig.width=7, fig.cap= "Percentage of African ancestry vs. M-index, curvature and eccentricity"}
 plt_mindex_afr = ggplot(df_admixed_plt, 
               aes(AFR, m_index))+
   geom_point(alpha = 0.7)+
@@ -345,7 +346,7 @@ summary(lcurv_ecc.1)
 ```
 
 
-```{r plt_curv_ecc}
+```{r plt_curv_ecc, fig.cap= "Curvature vs. eccentricity (without correction for ancestry)"}
 
 
 evc1 = ggplot(df_curv_ecc, aes(eccentricity_median,
@@ -382,7 +383,7 @@ summary(lcurv_ecc.3)
 ```
 
 
-```{r plt_curv_ecc_anc}
+```{r plt_curv_ecc_anc, fig.cap= "Curvature vs. eccentricity (with correction for ancestry)"}
 #turns out the correlation between curvature and eccentricity is due to stratification.
 df_curv_ecc = df_curv_ecc %>%
   mutate(resid1 = resid(lcurv_ecc.2))
@@ -426,7 +427,7 @@ summary(lcurv_mindex.1)
 ```
 
 
-```{r plt_curv_mindex}
+```{r plt_curv_mindex, fig.cap= "Curvature vs. M-index (without correction for ancestry)"}
 mvc_uncorrected = ggplot(df_curv_mindex,
                          aes(m_index,
                                     curv_median))+
@@ -461,7 +462,7 @@ summary(lcurv_mindex.3)
 ```
 
 
-```{r plt_curv_mindex_anc}
+```{r plt_curv_mindex_anc, fig.cap= "Curvature vs. M-index (with correction for ancestry)"}
 df_curv_mindex$resid1 = resid(lcurv_mindex.2)
 
 mvc_corrected = ggplot(df_curv_mindex,

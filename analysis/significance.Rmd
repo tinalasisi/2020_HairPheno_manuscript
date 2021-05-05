@@ -342,17 +342,6 @@ df_curv_ecc = df_admixed_plt %>%
 
 First we examine the data without correcting for ancestry.
 
-```{r stats_curv_ecc}
-lcurv_ecc.1 = lm(data = df_curv_ecc, 
-                 curv_median ~ eccentricity_median)
-
-
-summary(lcurv_ecc.1)
-
-plot(lcurv_ecc.1)
-
-```
-
 ```{r plt_curv_ecc, fig.cap= "Curvature vs. eccentricity (without correction for ancestry)"}
 
 
@@ -373,6 +362,20 @@ evc1
 
 ```
 
+Fit a simple linear model and check the residuals. 
+
+```{r stats_curv_ecc}
+lcurv_ecc.1 = lm(data = df_curv_ecc, 
+                 curv_median ~ eccentricity_median)
+
+
+summary(lcurv_ecc.1)
+
+#write function to plot residuals
+
+plot(lcurv_ecc.1, which = 1)
+
+```
 
 The residual plots show that there might be a few problems with the relationship:
 1. possibly an outlier distorting the relationship, 
@@ -392,27 +395,37 @@ lcurv_ecc.1 = lm(data = df_curv_ecc,
 
 summary(lcurv_ecc.1)
 
-plot(lcurv_ecc.1)
+plot(lcurv_ecc.1, which = 1)
 
 ```
 
-Next, let's see if the data fits a quadratic model better.
+The outlier removal improves the fit. Next, check if the data fits a curvilinear (quadratic) model better.
 
 ```{r}
+#center eccentricity first 
 df_curv_ecc = df_curv_ecc%>%
-  mutate(eccentricity_median2 = eccentricity_median^2)
+  mutate(eccentricity_median.c = scale(eccentricity_median, scale = FALSE),
+    eccentricity_median.c2 = eccentricity_median.c^2)
+
 
 lcurv_ecc.1.1 = lm(data = df_curv_ecc, 
-                 curv_median ~ eccentricity_median + eccentricity_median2)
+                 curv_median ~ eccentricity_median.c + eccentricity_median.c2)
 
+plot(lcurv_ecc.1.1, which = 1)
+
+```
+
+The quadratic fit is better that the simple linear fit. Let's compare the two models formally and see if the quadratic fit is better.
+
+```{r}
 
 anova(lcurv_ecc.1, lcurv_ecc.1.1, test = "Chisq")
 
-plot(lcurv_ecc.1.1)
-
 ```
 
-Finally, let's use the fitted values as weights in a weighted regression. Because the variance increases with increasing eccentricity, we will use 1/fitted_values^2 as weights.
+This shows that the residual sum of squares is significantly smaller for the quadratic fit, i.e., the quadratic model fits the data better.
+
+There still seems to be some heteroescedasticity in the errors. We will use the fitted values as weights in a weighted regression. Because the variance increases with the fitted values, we will use $\frac{1}{fitted ~ values^2}$ as weights. 
 
 ```{r}
 
@@ -420,17 +433,22 @@ Finally, let's use the fitted values as weights in a weighted regression. Becaus
 df_curv_ecc$inv.curv = 1/lcurv_ecc.1.1$fitted.values^2
   
 lcurv_ecc.1.2 = lm(data = df_curv_ecc, 
-                 curv_median ~ eccentricity_median +
-                   eccentricity_median2, 
+                 curv_median ~ eccentricity_median.c +
+                   eccentricity_median.c2, 
                  weights = inv.curv)
 
 summary(lcurv_ecc.1.2)
 
-plot(lcurv_ecc.1.2)
+#for this, we need to plot the standardized residuals
+plot(fitted(lcurv_ecc.1.2),
+     rstandard(lcurv_ecc.1.2),
+     xlab = "Fitted values\n lm(curv_median ~ eccentricity_median + eccentricity_median^2)",
+     ylab = "Standardized residuals", 
+     main = "Residuals vs fitted\n(weighted regression)")
 
 ```
 
-Now the residuals look a lot better so we will go with this model. Let's generate the scatterplot with the model fit.
+The variance in the residuals is more homogeneous under this model. We will re-generate the scatterplot with this model fit.
 
 ```{r}
 
@@ -438,8 +456,8 @@ df_curv_ecc$fitted.cve = lcurv_ecc.1.2$fitted.values
 
 # r2_cve = paste("r^2 ~", round(summary(lcurv_ecc.1.2)$r.squared, 2))
 
-pvalue_cve1 = round(summary(lcurv_ecc.1.2)$coefficients[2,4],4)
-pvalue_cve2 = round(summary(lcurv_ecc.1.2)$coefficients[3,4],4)
+pvalue_cve1 = formatC(summary(lcurv_ecc.1.2)$coefficients[2,4],2)
+pvalue_cve2 = formatC(summary(lcurv_ecc.1.2)$coefficients[3,4],2)
 
 
 plt_cve = ggplot(df_curv_ecc, 
@@ -460,17 +478,17 @@ plt_cve = ggplot(df_curv_ecc,
                         pvalue_cve2))+
   ylim(c(0.01,0.8)) +
   geom_line(aes(eccentricity_median, fitted.cve), 
-             color = "red")
+             color = "red", size = 1)
 
 plt_cve
 
 ```
 
-If we consider the relationship between curvature and eccentricity without taking into account ancestry, we find that eccentricity is a significant predictor of curvature.
+Thus, there is a significant relationship between eccentricity and curvature. Does this hold when we add ancestry as a covariate in the model?
 
 ### Corrected
 
-We then re-plot the relationship after residualizing curvature and eccentriciy (both) on ancestry. 
+We re-plot the relationship after residualizing curvature and eccentriciy (both) on ancestry. 
 
 ```{r plt_curv_ecc_anc, fig.cap= "Curvature vs. eccentricity (with correction for ancestry)"}
 
@@ -501,9 +519,9 @@ evc2
 
 ```
 
-However, when we correct for ancestry, this correlation is no longer significant. This supports the idea that these traits may be independent. Let's fit a formal model here.
+When we correct for ancestry, the association between eccentricity and curvature is no longer significant. This supports the idea that these traits co-occur due to ancestry stratification. Let's test this formally.
 
-The relationship looks rather linear so let's start with a simple linear model and inspect the residuals. 
+The relationship looks rather linear so we will start with a simple linear model and inspect the residuals. 
 
 ```{r}
 
@@ -512,11 +530,11 @@ lcve_corrected = lm(data = df_curv_ecc,
 
 summary(lcve_corrected)
 
-plot(lcve_corrected)
+plot(lcve_corrected, which = 1)
 
 ```
 
-The relationship looks pretty linear but there's still some heteroescedasticity in the residuals. We will fit a weighted regression model.
+The relationship looks pretty linear but there's still some heteroescedasticity in the residuals. We will again fit a weighted regression model.
 
 ```{r}
 
@@ -528,12 +546,13 @@ lcve_corrected.1 = lm(data = df_curv_ecc,
 summary(lcve_corrected.1)
 
 plot(lcve_corrected.1$fitted.values, rstandard(lcve_corrected.1), 
-     xlab = "Fitted values", 
-     ylab = "Standardized residuals")
+     xlab = "Fitted values\n lm(curv_median ~ eccentricity_median + AFR)", 
+     ylab = "Standardized residuals",
+     main = "Residuals vs fitted values\n(Weighted regression model)")
 
 ```
 
-The weighted regression corrects the heteroescedasticity well.
+The weighted regression accounts for the heteroescedasticity.
 
 ```{r}
 
@@ -549,7 +568,7 @@ evc2.1 = ggplot(df_curv_ecc,
   labs(y = "Curvature (ancestry corrected)",
        x = "Eccentricity (ancestry corrected)",
        title = "Curvature vs eccentricity \n (ancestry corrected)")+
-  stat_smooth(method = "lm", se = FALSE, color = "red")+
+  stat_smooth(method = "lm", se = FALSE, color = "red", size = 1)+
   annotate(geom = "text",
           x = -0.25, y = 0.2, hjust = 0,
           label = paste("pvalue (eccentricity):", pvalue_cve.corrected))
@@ -579,7 +598,7 @@ lcurv_mindex.1 = lm(data = df_curv_mindex,
 
 summary(lcurv_mindex.1)
 
-plot(lcurv_mindex.1)
+plot(lcurv_mindex.1, which = 1)
 
 ```
 
@@ -602,7 +621,7 @@ mvc_uncorrected
 
 ```
 
-As expected, we see a significant correlation between the two traits. The relationship appears to be linear. There still seems to be more variance for observations with higher melanin index/curvature. We will use a weighted regression approach again.
+As expected, we see a significant correlation between the two traits. The relationship appears to be linear but there seems to be more variance for observations with higher melanin index/curvature. We will use a weighted regression approach again.
 
 ```{r}
 
@@ -638,7 +657,7 @@ mvc_uncorrected = ggplot(df_curv_mindex,
   stat_smooth(method="lm", color = "red", se = FALSE)+
     annotate(geom = "text",
            x = 50, y = 0.15, hjust = 0,
-           label = paste("pvalue (MIndex):", 
+           label = paste("pvalue (MIndex):\n", 
            pvalue_cvm.weighted))
 
 mvc_uncorrected
@@ -655,12 +674,12 @@ We then apply a correction for ancestry and re-analyze the data.
 lcurv_afr.2 = lm(data = df_curv_mindex, 
                     curv_median ~ AFR)
 
-lmindex_afr = lm(data = df_curv_mindex, 
+lmindex_afr.1 = lm(data = df_curv_mindex, 
                  m_index ~ AFR)
 
 df_curv_mindex = df_curv_mindex %>%
-  mutate(resid_cvafr = resid(lcurv_afr.2), 
-         resid_miafr = resid(lmindex_afr))
+  mutate(resid_cvafr = rstandard(lcurv_afr.2), 
+         resid_miafr = rstandard(lmindex_afr.1))
 
 lmindex_curv = lm(data = df_curv_mindex, 
                   curv_median ~ m_index + AFR, 
@@ -678,7 +697,7 @@ mvc_corrected = ggplot(df_curv_mindex,
        title = "Curvature vs melanin index \n(ancestry corrected)")+
   stat_smooth(method="lm",se = FALSE, color = "red")+
     annotate(geom = "text",
-           x = 0, y = -0.3, 
+           x = 0, y = -3, 
            label = paste("pvalue (MIndex):", pvalue_cvm.corrected))
 
 mvc_corrected

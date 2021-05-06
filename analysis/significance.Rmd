@@ -3,10 +3,10 @@ title: "Biological Significance"
 author: "Tina Lasisi"
 date: "`r Sys.time()`"
 output:
+  pdf_document: default
   workflowr::wflow_html:
     toc: yes
     number_sections: yes
-  pdf_document: default
 editor_options:
   chunk_output_type: console
 ---
@@ -99,7 +99,7 @@ Our data consists of 193 individuals for whom we have quantitative hair phenotyp
 
 We compare the self-reported hair texture with mean and median curvature for our sample. 
 
-```{r plt_admixed_SelfRepHair, fig.height=4, fig.width=8, fig.cap= "Self-reported hair texture vs. quantitative hair curvature"}
+```{r plt_admixed_SelfRepHair, fig.height=4, fig.width=8, fig.cap="Self-reported hair texture vs. quantitative hair curvature"}
 
 
 plt_admixed_SelfRepHair_CurvMean <- df_admixed_plt %>%
@@ -142,11 +142,11 @@ plt_SelfRepCurv
 
 The single individual with a high mean curvature in the straight group is the result of an artefact in the image. 
 
-```{r artefact_im, fig.cap= "Image of hair sample with artefact biasing the measurement"}
+```{r artefact_im, fig.cap="Image of hair sample with artefact biasing the measurement"}
 # knitr for PDF document
-# knitr::include_graphics("../docs/assets/artefact.jpg", error = FALSE)
+knitr::include_graphics("../docs/assets/artefact.jpg", error = FALSE)
 # knitr for workflowr HTML
-knitr::include_graphics("assets/artefact.jpg", error = FALSE)
+# knitr::include_graphics("assets/artefact.jpg", error = FALSE)
 ```
 
 The red arrow points to a stray fiber that likely contaminated the sample and was missed during imaging. Such potential outliers are the reason we chose to use the median curvature for a sample in our analyses.
@@ -157,7 +157,7 @@ To explore how much data is lost when binning continuous variation, we compared 
 
 While the authors propose a number of parameters to distinguish curlier hair types (based on number of twists and waves among other factors), their primary classification is based on curvature. We demonstrate that, regardless of additional parameters, a considerable range of curvature is obscured when collapsing hair variation according to their curvature thresholds.
 
-```{r plt_admixed_HairTypeBin, fig.cap= "Objective hair classification vs. quantitative curvature"}
+```{r plt_admixed_HairTypeBin, fig.cap="Objective hair classification vs. quantitative curvature"}
 
 plt_admixed_HairTypeBin_CurvMean <- df_admixed_plt %>%
   mutate(HairTypeBin_mean = 
@@ -292,7 +292,7 @@ plt_mindex_afr = ggplot(df_admixed_plt,
   stat_smooth(method = "lm")+
   theme_classic()+
   labs(x = "African Ancestry",
-       y = bquote("Melanin index"))+
+       y = bquote("Melanin Index"))+
   annotate(geom="text",x = 0.2, y = 70,
            label = bquote(r^2*" = 0.83"))
 
@@ -364,7 +364,7 @@ evc1
 
 Fit a simple linear model and check the residuals. 
 
-```{r stats_curv_ecc}
+```{r stats_curv_ecc, fig.cap="Residuals vs. fitted (linear model)"}
 lcurv_ecc.1 = lm(data = df_curv_ecc, 
                  curv_median ~ eccentricity_median)
 
@@ -382,9 +382,9 @@ The residual plots show that there might be a few problems with the relationship
 2. relationship might not be linear
 3. errors might be heteroescedastic.
 
-Let's refit the model after removing the outlier. 
+We refit the model after removing the outlier. 
 
-```{r}
+```{r plt-lcurv-ecc1, fig.cap="Residuals vs. fitted model"}
 
 df_curv_ecc = df_curv_ecc %>%
   filter(eccentricity_median > 0.4)
@@ -401,7 +401,7 @@ plot(lcurv_ecc.1, which = 1)
 
 The outlier removal improves the fit. Next, check if the data fits a curvilinear (quadratic) model better.
 
-```{r}
+```{r plt-lcurv-ecc11, fig.cap="Residuals vs. fitted model (outlier removed)"}
 #center eccentricity first 
 df_curv_ecc = df_curv_ecc%>%
   mutate(eccentricity_median.c = scale(eccentricity_median, scale = FALSE),
@@ -417,7 +417,7 @@ plot(lcurv_ecc.1.1, which = 1)
 
 The quadratic fit is better that the simple linear fit. Let's compare the two models formally and see if the quadratic fit is better.
 
-```{r}
+```{r stats-anova-lcurv-ecc1}
 
 anova(lcurv_ecc.1, lcurv_ecc.1.1, test = "Chisq")
 
@@ -427,7 +427,7 @@ This shows that the residual sum of squares is significantly smaller for the qua
 
 There still seems to be some heteroescedasticity in the errors. We will use the fitted values as weights in a weighted regression. Because the variance increases with the fitted values, we will use $\frac{1}{fitted ~ values^2}$ as weights. 
 
-```{r}
+```{r plt-lcurv-ecc12, fig.cap="Residuals vs. fitted model (weighted regression)"}
 
 #weights
 df_curv_ecc$inv.curv = 1/lcurv_ecc.1.1$fitted.values^2
@@ -443,14 +443,13 @@ summary(lcurv_ecc.1.2)
 plot(fitted(lcurv_ecc.1.2),
      rstandard(lcurv_ecc.1.2),
      xlab = "Fitted values\n lm(curv_median ~ eccentricity_median + eccentricity_median^2)",
-     ylab = "Standardized residuals", 
-     main = "Residuals vs fitted\n(weighted regression)")
+     ylab = "Standardized residuals")
 
 ```
 
 The variance in the residuals is more homogeneous under this model. We will re-generate the scatterplot with this model fit.
 
-```{r}
+```{r plt-lcurv-ecc-uncorr, fig.cap="Curvature vs eccentricity (ancestry uncorrected) fit comparison"}
 
 df_curv_ecc$fitted.cve = lcurv_ecc.1.2$fitted.values
 
@@ -470,11 +469,11 @@ plt_cve = ggplot(df_curv_ecc,
        title = "Curvature vs eccentricity \n (ancestry uncorrected)")+
   annotate(geom = "text",
           x = 0.5, y = 0.7, hjust = 0,
-          label = paste("pvalue (eccentricity):", 
+          label = paste("p-value (eccentricity) =", 
                         pvalue_cve1))+
     annotate(geom = "text",
           x = 0.5, y = 0.6, hjust = 0,
-          label = paste("pvalue (eccentricity^2):", 
+          label = paste("p-value (eccentricity^2) =", 
                         pvalue_cve2))+
   ylim(c(0.01,0.8)) +
   geom_line(aes(eccentricity_median, fitted.cve), 
@@ -490,7 +489,7 @@ Thus, there is a significant relationship between eccentricity and curvature. Do
 
 We re-plot the relationship after residualizing curvature and eccentriciy (both) on ancestry. 
 
-```{r plt_curv_ecc_anc, fig.cap= "Curvature vs. eccentricity (with correction for ancestry)"}
+```{r plt_curv_ecc_anc, fig.cap="Curvature vs. eccentricity (with correction for ancestry)"}
 
 
 lcurv_afr = lm(data = df_curv_ecc, 
@@ -523,7 +522,7 @@ When we correct for ancestry, the association between eccentricity and curvature
 
 The relationship looks rather linear so we will start with a simple linear model and inspect the residuals. 
 
-```{r}
+```{r plt-lcve-corrected, fig.cap="Curvature vs. eccentricity (with correction for ancestry)"}
 
 lcve_corrected = lm(data = df_curv_ecc, 
                     curv_median ~ eccentricity_median + AFR)
@@ -536,7 +535,7 @@ plot(lcve_corrected, which = 1)
 
 The relationship looks pretty linear but there's still some heteroescedasticity in the residuals. We will again fit a weighted regression model.
 
-```{r}
+```{r plt-lcve-corrected1, fig.cap="Residuals vs fitted values\n(Weighted regression model)"}
 
 df_curv_ecc$fitted.cve_afr = 1/fitted(lcve_corrected)^2
 
@@ -547,14 +546,13 @@ summary(lcve_corrected.1)
 
 plot(lcve_corrected.1$fitted.values, rstandard(lcve_corrected.1), 
      xlab = "Fitted values\n lm(curv_median ~ eccentricity_median + AFR)", 
-     ylab = "Standardized residuals",
-     main = "Residuals vs fitted values\n(Weighted regression model)")
+     ylab = "Standardized residuals")
 
 ```
 
 The weighted regression accounts for the heteroescedasticity.
 
-```{r}
+```{r plt-cve-corrected, fig.cap="Curvature vs eccentricity \n (ancestry corrected)"}
 
 df_curv_ecc$fitted.cve_afr.weighted = fitted(lcve_corrected.1)
 
@@ -571,7 +569,7 @@ evc2.1 = ggplot(df_curv_ecc,
   stat_smooth(method = "lm", se = FALSE, color = "red", size = 1)+
   annotate(geom = "text",
           x = -0.25, y = 0.2, hjust = 0,
-          label = paste("pvalue (eccentricity):", pvalue_cve.corrected))
+          label = paste("p-value (eccentricity) =\n", pvalue_cve.corrected))
 
 evc2.1
 
@@ -586,7 +584,7 @@ To demonstrate the potential effect of population stratification on traits, we c
 
 First we examine the relationship between curvature and skin pigmentation without correcting for ancestry.
 
-```{r stats_curv_mindex}
+```{r plt-curv-mindex, fig.cap="Residuals vs. fitted for M-Index and curvature (linear model)"}
 
 df_curv_mindex = df_admixed_plt %>%
   ungroup() %>%
@@ -603,15 +601,15 @@ plot(lcurv_mindex.1, which = 1)
 ```
 
 
-```{r plt_curv_mindex, fig.cap= "Curvature vs. M-index (without correction for ancestry)"}
+```{r plt_curv_mindex, fig.cap="Curvature vs. M-index (without correction for ancestry)"}
 mvc_uncorrected = ggplot(df_curv_mindex,
                          aes(m_index,
                                     curv_median))+
   geom_point()+
   theme_classic()+
-  labs(x = "Melanin index",
+  labs(x = "Melanin Index",
        y = "Curvature",
-       title = "Curvature vs melanin index \n (ancestry uncorrected)")+
+       title = "Curvature vs Melanin Index \n (ancestry uncorrected)")+
   stat_smooth(method="lm")+
   annotate(geom = "text",
            x = 50, y = 0.15, 
@@ -621,9 +619,9 @@ mvc_uncorrected
 
 ```
 
-As expected, we see a significant correlation between the two traits. The relationship appears to be linear but there seems to be more variance for observations with higher melanin index/curvature. We will use a weighted regression approach again.
+As expected, we see a significant correlation between the two traits. The relationship appears to be linear but there seems to be more variance for observations with higher Melanin Index/curvature. We will use a weighted regression approach again.
 
-```{r}
+```{r lcurv-mindex2, fig.cap="Residuals vs. fitted values for M-Index"}
 
 df_curv_mindex$weights_cvm = 1/lcurv_mindex.1$fitted.values^2
 
@@ -642,7 +640,7 @@ plot(fitted(lcurv_mindex.2),
 
 That fixes the heteroescedasticity issue.
 
-```{r}
+```{r plt-curv-mindex-uncorrected, fig.cap="Curvature vs Melanin Index \n (ancestry uncorrected)"}
 
 pvalue_cvm.weighted = formatC(summary(lcurv_mindex.2)$coefficients[2,4])
 
@@ -651,13 +649,13 @@ mvc_uncorrected = ggplot(df_curv_mindex,
                                     curv_median))+
   geom_point()+
   theme_classic()+
-  labs(x = "Melanin index",
+  labs(x = "Melanin Index",
        y = "Curvature",
-       title = "Curvature vs melanin index \n (ancestry uncorrected)")+
+       title = "Curvature vs Melanin Index \n (ancestry uncorrected)")+
   stat_smooth(method="lm", color = "red", se = FALSE)+
     annotate(geom = "text",
            x = 50, y = 0.15, hjust = 0,
-           label = paste("pvalue (MIndex):\n", 
+           label = paste("p-value (M-Index) =\n", 
            pvalue_cvm.weighted))
 
 mvc_uncorrected
@@ -670,7 +668,6 @@ mvc_uncorrected
 We then apply a correction for ancestry and re-analyze the data. 
 
 ```{r stats_curv_mindex_anc}
-
 lcurv_afr.2 = lm(data = df_curv_mindex, 
                     curv_median ~ AFR)
 
@@ -686,19 +683,22 @@ lmindex_curv = lm(data = df_curv_mindex,
                   weights = weights_cvm)
 
 pvalue_cvm.corrected = round(summary(lmindex_curv)$coefficients[2,4],3)
+```
 
+
+```{r plt-curv-mindex-anc, fig.cap="Curvature vs Melanin Index (ancestry corrected)"}
 mvc_corrected = ggplot(df_curv_mindex,
                        aes(resid_miafr, 
                            resid_cvafr))+
   geom_point()+
   theme_classic()+
-  labs(x = "Melanin index (ancestry corrected)",
+  labs(x = "Melanin Index (ancestry corrected)",
        y = "Curvature (ancestry corrected)",
-       title = "Curvature vs melanin index \n(ancestry corrected)")+
+       title = "Curvature vs Melanin Index \n(ancestry corrected)")+
   stat_smooth(method="lm",se = FALSE, color = "red")+
     annotate(geom = "text",
            x = 0, y = -3, 
-           label = paste("pvalue (MIndex):", pvalue_cvm.corrected))
+           label = paste("p-value (M-Index) =", pvalue_cvm.corrected))
 
 mvc_corrected
 
